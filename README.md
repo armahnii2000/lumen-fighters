@@ -1,0 +1,137 @@
+# Shoto Fighter 🥋
+
+A 2D fighting game in the style of **Street Fighter II**, built with **Godot 4** and GDScript.
+Clean, data-driven architecture, **verified by 78 automated tests** (unit, integration and end-to-end).
+
+> Learning / portfolio project in active development. The core combat mechanics are complete
+> and tested; the art is a **custom geometric style** designed to be swappable for real sprites
+> without touching any game logic.
+
+---
+
+## ✨ Features (implemented and tested)
+
+**Movement**
+- Walk (forward/back relative to the opponent), crouch, committed jump (no air control), **dash** (double-tap)
+- Stage walls / corner, pushbox (fighters can't overlap), camera with dynamic zoom
+
+**Combat**
+- **Data-driven** attack system with real frame data: *startup / active / recovery*
+- Hitbox / hurtbox (AABB), **hitstun**, **hitstop**, pushback
+- **18 normals** per character (6 standing · 6 crouching · 6 aerial)
+- **Directional blocking** (high = back, low = down-back), **blockstun**, **chip damage** (lethal, like SF2)
+- **Throws** with **throw tech** (break), **knockdown** (sweeps and grabs)
+
+**Specials (shoto archetype)**
+- **Hadouken** (`236P`) fireball · **Shoryuken** (`623P`) invincible anti-air · **Tatsu** (`214K`)
+- Three **L/M/H** versions per special · numpad-notation motion detection + input buffer
+- **Cancels** (normal → special) · combo **damage scaling** (100/100/80/60/40/20 %)
+
+**Presentation**
+- Geometric fighter silhouettes with a strike limb · **hit sparks** · **screen shake** · **health-bar HUD**
+
+---
+
+## 🎮 Controls (2 players, shared keyboard)
+
+| Action | Player 1 (blue) | Player 2 (red) |
+|---|---|---|
+| Left / Right | `A` / `D` | `←` / `→` |
+| Crouch / Jump | `S` / `W` | `↓` / `↑` |
+| Dash | double-tap `A`/`D` | double-tap `←`/`→` |
+| Punches (L/M/H) | `U` / `I` / `O` | `,` / `.` / `/` |
+| Kicks (L/M/H) | `J` / `K` / `L` | `N` / `M` / `B` |
+| Throw | `U` + `J` | `,` + `N` |
+
+**Specials (P1, facing right):**
+- Hadouken: `S → D + U`  ·  Shoryuken: `D → S → D + U`  ·  Tatsu: `S → A + J`
+
+---
+
+## 🚀 Running the game
+
+Requires **Godot 4.4 or newer** (tested on 4.7.1).
+
+```bash
+git clone https://github.com/aminRX/shoto-fighter-godot.git
+```
+
+Open the project in Godot and press **Play** (main scene: `res://match/match.tscn`).
+
+---
+
+## 🧪 Tests
+
+The project uses **[gdUnit4](https://github.com/godot-gdunit-labs/gdUnit4)** (bundled in `addons/`).
+The suite covers the combat logic end to end:
+
+- **Unit** (~70%): damage scaling, motion detection, frame data, stage physics, block rules
+- **Integration**: hitbox+hurtbox+health, throws, blocking, specials
+- **End-to-end**: full combat in the real scene driving real inputs (e.g. a Hadouken crossing the screen and connecting)
+
+Run the suite (headless):
+
+```bash
+powershell -File run_tests.ps1
+```
+
+Or directly:
+
+```bash
+godot --headless -s addons/gdUnit4/bin/GdUnitCmdTool.gd --ignoreHeadlessMode -a res://test
+```
+
+**Current status: 78/78 passing.** ✅
+
+---
+
+## 🏗️ Architecture
+
+Built to avoid spaghetti code (following the Godot community consensus, 2025–2026):
+
+- **Node-based state machine**: one node = one state (no "boolean soup")
+- **Composition over inheritance**: hitbox / hurtbox / health as components
+- **Data-driven**: frame data lives in data objects, tunable without recompiling
+- **A single `Fighter`** for human and (future) AI: both feed the same `InputFrame`
+- **Logic separated from presentation**: the view *reads* the state — which is why the art can be swapped for sprites without touching the logic or breaking the tests
+
+Design docs live in [`docs/`](docs/) (in Spanish):
+- `GDD-tecnico.md` — what the game is (mechanics, characters, frame data)
+- `arquitectura-codigo.md` — how the code is structured
+- `estrategia-testing.md` — how it's tested
+
+```
+fighter/     Fighter + StateMachine + states
+core/        pure testable logic (frame data, motions, damage, physics)
+input/       InputFrame, InputSource, HumanInput
+match/       main scene + MatchManager (collisions, hits, camera)
+projectile/  Hadouken projectile
+fx/  ui/     hit sparks · HUD
+test/        unit / integration / e2e
+```
+
+---
+
+## 🗺️ Roadmap
+
+- [x] **Phase 0–1** — Skeleton + movement (walk, crouch, jump, dash, corner, camera)
+- [x] **Phase 2** — Attacks, hitbox/hurtbox, hitstun/hitstop
+- [x] **Phase 3** — Defense (blocking, chip, throws + tech, knockdown)
+- [x] **Phase 4** — Specials (motions, L/M/H, projectile, cancels, damage scaling)
+- [x] **Phase 8 (partial)** — Geometric art, HUD, hit sparks, screen shake
+- [ ] **Phase 5** — Differentiate the two shotos (zoner vs rushdown)
+- [ ] **Phase 6** — Best-of-3 rounds, timer, KO, rematch
+- [ ] **Phase 7** — CPU AI (3 fair difficulty levels)
+- [ ] **Phase 8 (rest)** — SFX, menus, character select, real sprites
+
+---
+
+## 🛠️ Tech
+
+Godot 4.x · GDScript · gdUnit4 (tests) · fixed 60 FPS · no external runtime dependencies.
+
+## 📄 License
+
+[MIT](LICENSE) — free to use, modify and share.
+
+The **gdUnit4** test framework (in `addons/gdUnit4/`) is by Mike Schulze, under its own MIT license.

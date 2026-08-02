@@ -1,0 +1,20 @@
+# Local tooling (Godot binary, etc.) — not committed
+.tools/
+
+# Godot 4+ specific ignores
+.godot/
+/android/
+/export/
+export_presets.cfg
+
+# Imported assets cache
+*.import
+
+# gdUnit4 reports
+/reports/
+test_results.xml
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.tmp

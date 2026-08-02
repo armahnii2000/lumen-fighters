@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/hud.gd" id="1"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="P1Bg" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 182.0
+offset_bottom = 20.0
+color = Color(0.13, 0.12, 0.16, 0.85)
+
+[node name="P1Fill" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 182.0
+offset_bottom = 20.0
+color = Color(0.25, 0.55, 0.95, 1)
+
+[node name="P2Bg" type="ColorRect" parent="."]
+offset_left = 204.0
+offset_top = 8.0
+offset_right = 374.0
+offset_bottom = 20.0
+color = Color(0.13, 0.12, 0.16, 0.85)
+
+[node name="P2Fill" type="ColorRect" parent="."]
+offset_left = 204.0
+offset_top = 8.0
+offset_right = 374.0
+offset_bottom = 20.0
+color = Color(0.95, 0.4, 0.32, 1)
+
+[node name="P1Name" type="Label" parent="."]
+offset_left = 12.0
+offset_top = 22.0
+offset_right = 120.0
+offset_bottom = 38.0
+text = "KAZE"
+
+[node name="P2Name" type="Label" parent="."]
+offset_left = 266.0
+offset_top = 22.0
+offset_right = 374.0
+offset_bottom = 38.0
+horizontal_alignment = 2
+text = "HOMURA"
