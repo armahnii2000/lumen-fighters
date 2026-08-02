@@ -21,6 +21,7 @@ extends CharacterBody2D
 @export var gravity: float = 1800.0
 
 @export_group("Combat")
+@export var character_id: String = "kaze"
 @export var team: int = 0
 @export var max_health: int = 1000
 @export var hurtbox_offset: Vector2 = Vector2(0, -48)
@@ -62,6 +63,7 @@ var knockdown_frames: int = 0
 var throw_pressed: bool = false
 var invuln_frames: int = 0
 var combo_count: int = 0
+var frozen: bool = false
 
 var specials: Dictionary = {}
 var _numpad_history: Array = []
@@ -87,7 +89,14 @@ func _ready() -> void:
 	_apply_base_colors()
 	health = max_health
 	moves = MoveSet.default_normals()
-	specials = MoveSet.default_specials()
+	specials = Characters.specials_for(character_id)
+	var s := Characters.stats(character_id)
+	walk_fwd_speed = s["walk_fwd_speed"]
+	walk_back_speed = s["walk_back_speed"]
+	dash_fwd_speed = s["dash_fwd_speed"]
+	dash_fwd_frames = s["dash_fwd_frames"]
+	dash_back_speed = s["dash_back_speed"]
+	dash_back_frames = s["dash_back_frames"]
 	if input_source == null:
 		for child in get_children():
 			if child is InputSource:
@@ -136,6 +145,9 @@ func _process(_delta: float) -> void:
 	head.color = tint if st == "Hitstun" else body_color
 
 func _physics_process(delta: float) -> void:
+	# Congelado entre rounds / fin de match: no procesa nada.
+	if frozen:
+		return
 	# Hitstop: congela por completo a ambos (impacto). Ni input, ni estado, ni física.
 	if hitstop_frames > 0:
 		hitstop_frames -= 1
@@ -366,3 +378,21 @@ func throw_tech() -> void:
 	current_move = null
 	vel = Vector2(-facing() * 200.0, 0.0)
 	state_machine.transition_to("Idle")
+
+## Reinicia al fighter para un nuevo round.
+func reset_for_round(pos: Vector2, faces_right: bool) -> void:
+	position = pos
+	vel = Vector2.ZERO
+	health = max_health
+	facing_right = faces_right
+	hitstun_frames = 0
+	blockstun_frames = 0
+	knockdown_frames = 0
+	hitstop_frames = 0
+	invuln_frames = 0
+	combo_count = 0
+	current_move = null
+	move_has_hit = false
+	on_ground = true
+	_numpad_history.clear()
+	state_machine.force_state("Idle")

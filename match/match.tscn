@@ -37,6 +37,7 @@ position = Vector2(192, 108)
 
 [node name="Player1" parent="." instance=ExtResource("2")]
 position = Vector2(130, 180)
+character_id = "kaze"
 body_color = Color(0.25, 0.55, 0.95, 1)
 
 [node name="HumanInput" type="Node" parent="Player1"]
@@ -45,6 +46,7 @@ player_prefix = "p1"
 
 [node name="Player2" parent="." instance=ExtResource("2")]
 position = Vector2(254, 180)
+character_id = "homura"
 body_color = Color(0.95, 0.4, 0.32, 1)
 
 [node name="HumanInput" type="Node" parent="Player2"]

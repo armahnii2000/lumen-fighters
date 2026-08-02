@@ -1,11 +1,11 @@
 # Shoto Fighter 🥋
 
 A 2D fighting game in the style of **Street Fighter II**, built with **Godot 4** and GDScript.
-Clean, data-driven architecture, **verified by 78 automated tests** (unit, integration and end-to-end).
+Clean, data-driven architecture, **verified by 98 automated tests** (unit, integration and end-to-end).
 
-> Learning / portfolio project in active development. The core combat mechanics are complete
-> and tested; the art is a **custom geometric style** designed to be swappable for real sprites
-> without touching any game logic.
+> Full local game: movement, combat, specials, best-of-3 rounds, a CPU opponent with 3
+> difficulty levels, and a main menu. The art is a **custom geometric style** designed to be
+> swappable for real sprites without touching any game logic.
 
 ---
 
@@ -27,8 +27,14 @@ Clean, data-driven architecture, **verified by 78 automated tests** (unit, integ
 - Three **L/M/H** versions per special · numpad-notation motion detection + input buffer
 - **Cancels** (normal → special) · combo **damage scaling** (100/100/80/60/40/20 %)
 
+**Match & modes**
+- **Two differentiated shotos**: Kaze (zoner — better fireball, safe DP) vs Homura (rushdown — faster, stronger DP)
+- **Best-of-3 rounds**, 99s timer, KO / time-decision, rematch
+- **CPU opponent** with 3 fair difficulty levels (Easy / Medium / Hard) — the AI feeds the same inputs a human would
+- **Main menu**: 2 Players or vs CPU
+
 **Presentation**
-- Geometric fighter silhouettes with a strike limb · **hit sparks** · **screen shake** · **health-bar HUD**
+- Geometric fighter silhouettes with a strike limb · **hit sparks** · **screen shake** · **health-bar HUD** · procedural SFX
 
 ---
 
@@ -118,11 +124,13 @@ test/        unit / integration / e2e
 - [x] **Phase 2** — Attacks, hitbox/hurtbox, hitstun/hitstop
 - [x] **Phase 3** — Defense (blocking, chip, throws + tech, knockdown)
 - [x] **Phase 4** — Specials (motions, L/M/H, projectile, cancels, damage scaling)
-- [x] **Phase 8 (partial)** — Geometric art, HUD, hit sparks, screen shake
-- [ ] **Phase 5** — Differentiate the two shotos (zoner vs rushdown)
-- [ ] **Phase 6** — Best-of-3 rounds, timer, KO, rematch
-- [ ] **Phase 7** — CPU AI (3 fair difficulty levels)
-- [ ] **Phase 8 (rest)** — SFX, menus, character select, real sprites
+- [x] **Phase 5** — Differentiated shotos (Kaze zoner vs Homura rushdown)
+- [x] **Phase 6** — Best-of-3 rounds, timer, KO, rematch, HUD
+- [x] **Phase 7** — CPU AI (3 fair difficulty levels)
+- [x] **Phase 8** — Geometric art, HUD, hit sparks, screen shake, procedural SFX, main menu
+- [ ] **Future** — Real sprite art (the architecture makes this a drop-in swap), online rollback netcode
+
+**All core phases complete · 98/98 tests passing.**
 
 ---
 

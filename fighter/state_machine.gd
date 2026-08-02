@@ -38,6 +38,15 @@ func transition_to(state_name: String) -> void:
 	current_state.state_frame = 0
 	current_state.enter()
 
+## Fuerza un estado directamente (reset de round), sin exit del anterior.
+func force_state(state_name: String) -> void:
+	var next := get_node_or_null(NodePath(state_name)) as State
+	if next == null:
+		return
+	current_state = next
+	current_state.state_frame = 0
+	current_state.enter()
+
 ## Llamado por el Fighter cada tick de física.
 func physics_update(delta: float) -> void:
 	if current_state != null:

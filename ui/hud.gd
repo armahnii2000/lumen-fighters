@@ -8,9 +8,27 @@ const BAR_W := 170.0
 
 @onready var p1_fill: ColorRect = $P1Fill
 @onready var p2_fill: ColorRect = $P2Fill
+@onready var timer_label: Label = $Timer
+@onready var msg_label: Label = $Message
+@onready var p1_pips: Label = $P1Pips
+@onready var p2_pips: Label = $P2Pips
 
 var p1: Fighter
 var p2: Fighter
+
+func set_timer(seconds: int) -> void:
+	if timer_label != null:
+		timer_label.text = str(seconds)
+
+func set_rounds(a: int, b: int) -> void:
+	if p1_pips != null:
+		p1_pips.text = "O".repeat(a)
+	if p2_pips != null:
+		p2_pips.text = "O".repeat(b)
+
+func set_message(text: String) -> void:
+	if msg_label != null:
+		msg_label.text = text
 
 func setup(a: Fighter, b: Fighter) -> void:
 	p1 = a
