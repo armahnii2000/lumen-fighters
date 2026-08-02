@@ -51,6 +51,10 @@ visible = false
 color = Color(0.45, 0.7, 1, 1)
 polygon = PackedVector2Array(11, -80, 45, -75, 45, -65, 11, -70)
 
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+show_behind_parent = true
+offset = Vector2(0, -71)
+
 [node name="Collision" type="CollisionShape2D" parent="."]
 position = Vector2(0, -48)
 shape = SubResource("RectangleShape2D_1")

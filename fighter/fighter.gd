@@ -41,6 +41,9 @@ extends CharacterBody2D
 @onready var body: Polygon2D = $Visual/Torso
 @onready var head: Polygon2D = $Visual/Head
 @onready var limb: Polygon2D = $Visual/Limb
+@onready var sprite: AnimatedSprite2D = $Sprite
+
+var _cur_anim: String = ""
 
 const GROUNDED_STATES := ["Idle", "Walk", "Crouch"]
 const BTN_KEYS := ["lp", "mp", "hp", "lk", "mk", "hk"]
@@ -87,6 +90,7 @@ var _prev_buttons := [false, false, false, false, false, false]
 
 func _ready() -> void:
 	_apply_base_colors()
+	_setup_sprite()
 	health = max_health
 	moves = MoveSet.default_normals()
 	specials = Characters.specials_for(character_id)
@@ -103,6 +107,66 @@ func _ready() -> void:
 				input_source = child
 				break
 	state_machine.setup(self)
+
+const SPRITE_SCALE := 0.85
+const ATTACK_ANIM := {
+	"st.lp": "stand_lp", "st.mp": "stand_mp", "st.hp": "stand_hp",
+	"st.lk": "stand_lk", "st.mk": "stand_mk", "st.hk": "stand_hk",
+	"cr.lp": "crouch_lp", "cr.mp": "crouch_mp", "cr.hp": "crouch_mp",
+	"cr.lk": "crouch_lk", "cr.mk": "crouch_lk", "cr.hk": "crouch_hk",
+	"j.lp": "stand_lp", "j.mp": "stand_mp", "j.hp": "stand_hp",
+	"j.lk": "stand_lk", "j.mk": "stand_mk", "j.hk": "stand_hk",
+}
+
+func _setup_sprite() -> void:
+	var frames := KfmFrames.get_frames()
+	# Si los sprites no están disponibles (no importados), fallback al rig geométrico.
+	if frames == null or not frames.has_animation("idle") or frames.get_frame_count("idle") == 0:
+		sprite.visible = false
+		return
+	sprite.sprite_frames = frames
+	sprite.centered = false
+	sprite.offset = -KfmFrames.axis   # el eje (pies) queda en el origen del fighter
+	sprite.modulate = Color(0.72, 0.82, 1.0) if character_id == "kaze" else Color(1.0, 0.86, 0.82)
+	sprite.play("idle")
+	visual.visible = false   # ocultar el rig geométrico; el sprite lo reemplaza
+
+func _sprite_anim(st: String) -> String:
+	match st:
+		"Walk":
+			return "walk_fwd" if input.horizontal() == facing() else "walk_back"
+		"Crouch":
+			return "crouch"
+		"JumpStartup", "Jump":
+			return "jump"
+		"Dash":
+			return "run"
+		"Attack":
+			return _attack_anim()
+		"Blockstun":
+			return "guard_crouch" if input.down else "guard"
+		"Hitstun":
+			return "hurt"
+		"Knockdown", "Thrown":
+			return "knockdown"
+		"Throw":
+			return "throw"
+		_:
+			return "idle"
+
+func _attack_anim() -> String:
+	if current_move == null:
+		return "stand_hp"
+	if current_move.is_special:
+		match current_move.move_name:
+			"Hadouken":
+				return "palm"
+			"Shoryuken":
+				return "upper"
+			"Tatsu":
+				return "knee"
+		return "palm"
+	return ATTACK_ANIM.get(current_move.move_name.to_lower(), "stand_hp")
 
 func _apply_base_colors() -> void:
 	($Visual/Torso as Polygon2D).color = body_color
@@ -163,6 +227,13 @@ func _process(_delta: float) -> void:
 			tint = body_color.darkened(0.4)
 	body.color = tint
 	head.color = tint if st == "Hitstun" else body_color
+	# Sprite (si está activo): animación por estado + flip por facing (KFM mira a la derecha).
+	if sprite.visible and sprite.sprite_frames != null:
+		var a := _sprite_anim(st)
+		if a != _cur_anim:
+			_cur_anim = a
+			sprite.play(a)
+		sprite.scale = Vector2(SPRITE_SCALE * facing(), SPRITE_SCALE)
 	queue_redraw()
 
 func _draw() -> void:

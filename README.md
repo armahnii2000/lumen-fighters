@@ -4,8 +4,9 @@ A 2D fighting game in the style of **Street Fighter II**, built with **Godot 4**
 Clean, data-driven architecture, **verified by 98 automated tests** (unit, integration and end-to-end).
 
 > Full local game: movement, combat, specials, best-of-3 rounds, a CPU opponent with 3
-> difficulty levels, and a main menu. The art is a **custom geometric style** designed to be
-> swappable for real sprites without touching any game logic.
+> difficulty levels, and a main menu. Characters are rendered with **Kung Fu Man** sprites
+> (26 animations, extracted from M.U.G.E.N) driven by the state machine — swappable for any
+> other art without touching the gameplay logic (a clean geometric rig is the built-in fallback).
 
 ---
 
@@ -138,8 +139,11 @@ test/        unit / integration / e2e
 
 Godot 4.x · GDScript · gdUnit4 (tests) · fixed 60 FPS · no external runtime dependencies.
 
-## 📄 License
+## 📄 License & credits
 
-[MIT](LICENSE) — free to use, modify and share.
-
-The **gdUnit4** test framework (in `addons/gdUnit4/`) is by Mike Schulze, under its own MIT license.
+- **Code:** [MIT](LICENSE) — free to use, modify and share.
+- **Character sprites:** *Kung Fu Man* by **Elecbyte** (the M.U.G.E.N sample character),
+  **CC BY-NC** — this is a **non-commercial** learning project. It must not be sold with
+  these sprites; swap them for your own / CC0 art to go commercial (art and logic are
+  fully separated). See [CREDITS.md](CREDITS.md).
+- **Tests:** gdUnit4 by Mike Schulze (MIT), in `addons/gdUnit4/`.
