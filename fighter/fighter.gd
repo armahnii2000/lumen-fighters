@@ -15,10 +15,10 @@ extends CharacterBody2D
 @export var dash_back_frames: int = 14
 
 @export_group("Jump")
-@export var jump_startup_frames: int = 4
-@export var jump_speed: float = -640.0
-@export var jump_h_speed: float = 170.0
-@export var gravity: float = 1800.0
+@export var jump_startup_frames: int = 3
+@export var jump_speed: float = -700.0
+@export var jump_h_speed: float = 180.0
+@export var gravity: float = 2500.0
 
 @export_group("Combat")
 @export var character_id: String = "kaze"
@@ -116,21 +116,41 @@ func _process(_delta: float) -> void:
 	if body == null:
 		return
 	var st: String = String(state_machine.current_state.name) if state_machine.current_state != null else "Idle"
-	# Pose: facing (flip), agachado (squash), derribado (rotado), prejump (leve squash).
 	var sy := 1.0
 	var rot := 0.0
+	var offx := 0.0          # desplazamiento del rig (lunge al pegar, recoil al recibir)
+	var limb_ext := 0.0      # extensión de la extremidad de golpe (0 = oculta)
 	match st:
 		"Crouch":
 			sy = 0.72
 		"JumpStartup":
-			sy = 0.9
+			sy = 0.88
 		"Knockdown":
 			rot = deg_to_rad(78.0)
+		"Hitstun":
+			offx = -7.0          # recoil: empujado hacia atrás
+			rot = deg_to_rad(-8.0)
+		"Blockstun":
+			offx = -3.0
+		"Attack":
+			# Animación completa del golpe: wind-up -> extensión -> retracción.
+			if current_move != null and state_machine.current_state != null:
+				var ph := MovePhase.phase_at(state_machine.current_state.state_frame, current_move.startup, current_move.active, current_move.recovery)
+				match ph:
+					MovePhase.STARTUP:
+						limb_ext = 0.35; offx = -2.0    # arma el golpe
+					MovePhase.ACTIVE:
+						limb_ext = 1.0; offx = 6.0       # golpea + lunge adelante
+					MovePhase.RECOVERY:
+						limb_ext = 0.55; offx = 2.0
 	visual.scale = Vector2(float(facing()), sy)
 	visual.rotation = rot
-	# Extremidad de golpe: visible en los frames activos del ataque.
-	limb.visible = st == "Attack" and is_attack_active()
-	# Tinte (flash de feedback).
+	visual.position.x = offx * facing()
+	# Extremidad
+	limb.visible = limb_ext > 0.0
+	limb.scale.x = maxf(limb_ext, 0.01)
+	limb.color = body_color.lightened(0.45) if (st == "Attack" and is_attack_active()) else body_color.lightened(0.2)
+	# Tinte de la silueta (flash de feedback)
 	var tint := body_color
 	match st:
 		"Hitstun":
@@ -138,11 +158,36 @@ func _process(_delta: float) -> void:
 		"Blockstun":
 			tint = Color(0.55, 0.92, 1.0)
 		"Attack":
-			tint = body_color.lightened(0.3) if is_attack_active() else body_color.lightened(0.12)
+			tint = body_color.lightened(0.28) if is_attack_active() else body_color
 		"Knockdown":
 			tint = body_color.darkened(0.4)
 	body.color = tint
 	head.color = tint if st == "Hitstun" else body_color
+	queue_redraw()
+
+func _draw() -> void:
+	# Cajas de golpe/daño (modo entrenamiento) para leer alcance y timing.
+	var cfg := get_node_or_null("/root/GameConfig")
+	if cfg == null or not cfg.show_boxes:
+		return
+	# Pushbox (verde)
+	draw_rect(Rect2(-22.0, -96.0, 44.0, 96.0), Color(0.3, 1.0, 0.4, 0.10), true)
+	draw_rect(Rect2(-22.0, -96.0, 44.0, 96.0), Color(0.3, 1.0, 0.4, 0.5), false, 1.0)
+	# Hurtbox (azul)
+	var crouching := state_machine.current_state != null and state_machine.current_state.name == "Crouch"
+	var hoff := crouch_hurtbox_offset if crouching else hurtbox_offset
+	var hsz := crouch_hurtbox_size if crouching else hurtbox_size
+	var hr := Rect2(hoff.x - hsz.x / 2.0, hoff.y - hsz.y / 2.0, hsz.x, hsz.y)
+	draw_rect(hr, Color(0.3, 0.6, 1.0, 0.22), true)
+	draw_rect(hr, Color(0.4, 0.7, 1.0, 0.7), false, 1.0)
+	# Hitbox activo (rojo)
+	if is_attack_active():
+		var off := current_move.hitbox_offset
+		var sz := current_move.hitbox_size
+		if sz.x > 0.0 and sz.y > 0.0:
+			var xr := Rect2(off.x * facing() - sz.x / 2.0, off.y - sz.y / 2.0, sz.x, sz.y)
+			draw_rect(xr, Color(1.0, 0.25, 0.25, 0.35), true)
+			draw_rect(xr, Color(1.0, 0.4, 0.4, 0.9), false, 1.0)
 
 func _physics_process(delta: float) -> void:
 	# Congelado entre rounds / fin de match: no procesa nada.

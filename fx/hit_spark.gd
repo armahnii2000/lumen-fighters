@@ -17,5 +17,5 @@ func _process(delta: float) -> void:
 	if t >= 1.0:
 		queue_free()
 		return
-	scale = Vector2.ONE * (0.6 + t * 1.7)
+	scale = Vector2.ONE * (0.9 + t * 2.6)
 	modulate.a = 1.0 - t

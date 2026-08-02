@@ -17,36 +17,53 @@ grow_vertical = 2
 color = Color(0.075, 0.083, 0.117, 1)
 
 [node name="Title" type="Label" parent="."]
-offset_left = 62.0
-offset_top = 28.0
-offset_right = 322.0
-offset_bottom = 56.0
+offset_left = 42.0
+offset_top = 20.0
+offset_right = 342.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 text = "SHOTO FIGHTER"
 
 [node name="Subtitle" type="Label" parent="."]
-offset_left = 62.0
-offset_top = 58.0
-offset_right = 322.0
-offset_bottom = 74.0
+offset_left = 42.0
+offset_top = 46.0
+offset_right = 342.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(0.6, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 text = "Kaze  vs  Homura"
 
 [node name="VBox" type="VBoxContainer" parent="."]
-offset_left = 122.0
-offset_top = 92.0
-offset_right = 262.0
+offset_left = 102.0
+offset_top = 72.0
+offset_right = 282.0
 offset_bottom = 200.0
-theme_override_constants/separation = 6
+theme_override_constants/separation = 5
 
 [node name="Btn2P" type="Button" parent="VBox"]
+theme_override_font_sizes/font_size = 13
 text = "2 Players"
 
 [node name="BtnEasy" type="Button" parent="VBox"]
+theme_override_font_sizes/font_size = 13
 text = "vs CPU - Easy"
 
 [node name="BtnMedium" type="Button" parent="VBox"]
+theme_override_font_sizes/font_size = 13
 text = "vs CPU - Medium"
 
 [node name="BtnHard" type="Button" parent="VBox"]
+theme_override_font_sizes/font_size = 13
 text = "vs CPU - Hard"
+
+[node name="Hint" type="Label" parent="."]
+offset_left = 42.0
+offset_top = 196.0
+offset_right = 342.0
+offset_bottom = 210.0
+theme_override_colors/font_color = Color(0.45, 0.48, 0.6, 1)
+theme_override_font_sizes/font_size = 9
+horizontal_alignment = 1
+text = "F1: cajas   ·   Esc: menu"

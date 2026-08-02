@@ -10,9 +10,9 @@ extends Node2D
 @export var pushbox_min_sep: float = 44.0
 @export var throw_range: float = 60.0
 @export var view_width: float = 384.0
-@export var cam_min_zoom: float = 0.85
-@export var cam_max_zoom: float = 1.6
-@export var cam_margin: float = 90.0
+@export var cam_min_zoom: float = 0.8
+@export var cam_max_zoom: float = 1.1
+@export var cam_margin: float = 130.0
 @export var p2_is_cpu: bool = false
 @export var cpu_difficulty: String = "medium"
 
@@ -62,6 +62,10 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("ui_cancel"):
 		get_tree().change_scene_to_file("res://ui/main_menu.tscn")
 		return
+	if Input.is_action_just_pressed("toggle_debug"):
+		var cfg := get_node_or_null("/root/GameConfig")
+		if cfg != null:
+			cfg.show_boxes = not cfg.show_boxes
 	# Flujo de match (intro / pelea / fin de round / fin de match)
 	var ev := match_state.tick(p1.health, p2.health)
 	if ev == "next_round":
@@ -92,7 +96,7 @@ func _physics_process(delta: float) -> void:
 		var cam := CameraLogic.compute(p1.position.x, p2.position.x, view_width, cam_min_zoom, cam_max_zoom, cam_margin)
 		var off := 0.0
 		if _shake > 0:
-			off = 3.0 if (_shake % 2 == 0) else -3.0
+			off = 5.0 if (_shake % 2 == 0) else -5.0
 			_shake -= 1
 		camera.position.x = cam[0] + off
 		camera.zoom = Vector2(cam[1], cam[1])
@@ -131,7 +135,7 @@ func _rematch_pressed() -> bool:
 
 func _on_hit(defender: Fighter) -> void:
 	_spawn_spark(defender.global_position + Vector2(0.0, -50.0))
-	_shake = 6
+	_shake = 9
 	if sfx != null:
 		sfx.play_hit()
 

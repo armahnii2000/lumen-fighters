@@ -18,3 +18,7 @@ test_results.xml
 .DS_Store
 Thumbs.db
 *.tmp
+
+capture.png
+
+/tools/
