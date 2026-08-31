@@ -30,7 +30,7 @@ static func _build() -> SpriteFrames:
 		var info = m["anims"][anim]
 		sf.add_animation(anim)
 		sf.set_animation_loop(anim, bool(info["loop"]))
-		sf.set_animation_speed(anim, 60.0)   # duraciones en ticks de 60 fps
+		sf.set_animation_speed(anim, 36.0)   # slowed to 60% for visibility - was 60.0
 		var n := int(info["frames"])
 		for i in n:
 			var tex = load("res://assets/kfm/%s/%03d.png" % [anim, i])
