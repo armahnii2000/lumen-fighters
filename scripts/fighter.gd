@@ -128,15 +128,20 @@ func _handle_input(delta):
 
 	# blocking
 	is_blocking = Input.is_action_pressed(block) and is_on_floor() and attack_cooldown <= 0 and stun_time <= 0
-	if is_blocking:
-		velocity.x = move_toward(velocity.x, 0, 1200 * delta)
-		body_sprite.color = body_sprite.color.lerp(Color(0.9,0.9,0.9,1), 0.2)
+	if _use_sprite:
+		# sprite tint handled in _update_sprite_anim, skip ColorRect
+		if is_blocking:
+			velocity.x = move_toward(velocity.x, 0, 1200 * delta)
 	else:
-		# restore color
-		if player_id == 1:
-			body_sprite.color = Color(0.2, 0.6, 1.0, 1)
+		if is_blocking:
+			velocity.x = move_toward(velocity.x, 0, 1200 * delta)
+			body_sprite.color = body_sprite.color.lerp(Color(0.9,0.9,0.9,1), 0.2)
 		else:
-			body_sprite.color = Color(1.0, 0.3, 0.4, 1)
+			# restore color
+			if player_id == 1:
+				body_sprite.color = Color(0.2, 0.6, 1.0, 1)
+			else:
+				body_sprite.color = Color(1.0, 0.3, 0.4, 1)
 
 	if is_blocking or is_attacking:
 		# no movement while attacking/blocking except little
@@ -311,6 +316,13 @@ func _flash_blade(col: Color):
 	tween.tween_property(blade, "default_color", orig, 0.12)
 
 func _flash_body(col: Color):
+	if _use_sprite and sprite:
+		var orig = sprite.modulate
+		sprite.modulate = col
+		await get_tree().create_timer(0.08).timeout
+		if sprite:
+			sprite.modulate = Color(0.75, 0.85, 1.0) if player_id == 1 else Color(1.0, 0.82, 0.80)
+		return
 	var orig = body_sprite.color
 	body_sprite.color = col
 	await get_tree().create_timer(0.08).timeout
@@ -395,15 +407,15 @@ func _setup_kfm_sprite():
 	frames = kf.get_frames()
 	if frames == null or not frames.has_animation("idle"):
 		return
-	# Success - enable sprite, hide rectangles as overlay but keep for hurtbox debug
+	# Success - enable sprite, hide rectangles (hurtbox still uses CollisionShape2D, not the rect)
 	sprite.sprite_frames = frames
 	sprite.offset = Vector2(-55, -139) # axis
-	sprite.scale = Vector2(0.85 * facing, 0.85)
+	sprite.scale = Vector2(1.8 * facing, 1.8)
 	sprite.modulate = Color(0.75, 0.85, 1.0) if player_id == 1 else Color(1.0, 0.82, 0.80)
 	sprite.play("idle")
 	sprite.visible = true
-	# Keep Body as faint shadow/fallback but dim it so sprite pops
-	body_sprite.color.a = 0.0
+	body_sprite.visible = false
+	$Shadow.visible = false
 	_use_sprite = true
 
 func _update_sprite_anim():
