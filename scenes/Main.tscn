@@ -130,4 +130,4 @@ offset_top = 640.0
 offset_right = 1260.0
 offset_bottom = 700.0
 horizontal_alignment = 1
-text = "P1: A/D Move | W Jump | S Block | J Jab (+Lumen) | K Slash (-10 Lumen) | L Burst (-25)    |    P2: Arrows Move/Jump/Block | Numpad 1/2/3 Attack    |    R Restart"
+text = "KEYBOARD  P1: A/D Move | W Jump | S Block | J Jab | K Slash | L Burst   |   P2: Arrows + Numpad 1/2/3  ||  CONTROLLER  P1: [Joy0] Stick/D-Pad Move | A Jump | LB Block | X Jab | Y Slash | B/RT Burst  |  P2: [Joy1] Same  |  START/SELECT Restart"
