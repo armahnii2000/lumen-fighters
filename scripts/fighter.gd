@@ -23,6 +23,7 @@ var hit_cooldown: float = 0.0 # invincibility after hit
 var stun_time: float = 0.0
 
 @onready var body_sprite: ColorRect = $Body
+@onready var sprite: AnimatedSprite2D = $Sprite
 @onready var blade: Line2D = $Blade
 @onready var blade_light: PointLight2D = $Blade/PointLight2D
 @onready var hitbox: Area2D = $Hitbox
@@ -30,6 +31,7 @@ var stun_time: float = 0.0
 @onready var body_collision: CollisionShape2D = $CollisionShape2D
 @onready var blade_area: Area2D = $BladeArea
 @onready var blade_collision: CollisionShape2D = $BladeArea/CollisionShape2D
+var _use_sprite: bool = false
 
 var blade_base_length: float = 40.0
 var blade_dim_length: float = 18.0
@@ -56,6 +58,8 @@ func _ready():
 		body_sprite.color = Color(1.0, 0.3, 0.4, 1)
 		blade.default_color = Color(1.0, 0.4, 0.5, 1)
 		blade_light.color = Color(1.0, 0.4, 0.5, 1)
+	# Try KFM sprites additively - fallback to ColorRect if missing
+	_setup_kfm_sprite()
 
 func _physics_process(delta):
 	if is_dead:
@@ -77,6 +81,7 @@ func _physics_process(delta):
 	_apply_gravity(delta)
 	move_and_slide()
 	_update_facing()
+	_update_sprite_anim()
 	_clamp_to_arena()
 	_regen_lumen(delta)
 
@@ -103,6 +108,8 @@ func _update_facing():
 	if opponent and not is_dead:
 		facing = 1 if opponent.global_position.x > global_position.x else -1
 		body_sprite.scale.x = facing * 1.0 # flip body if needed
+		if sprite and _use_sprite:
+			sprite.scale.x = abs(sprite.scale.x) * facing
 		# blade side
 		blade.position.x = 12 * facing
 
@@ -359,6 +366,67 @@ func die():
 	is_dead = true
 	velocity = Vector2(-facing * 100, -250)
 	body_sprite.color = Color(0.3,0.3,0.3,1)
+	if _use_sprite and sprite:
+		sprite.modulate = Color(0.4,0.4,0.4,1)
 	blade.visible = false
 	blade_light.visible = false
 	blade_area.monitoring = false
+
+func _setup_kfm_sprite():
+	if sprite == null:
+		return
+	# KfmFrames is optional - if not present keep rectangles
+	if not FileAccess.file_exists("res://core/kfm_frames.gd") and not ClassDB.class_exists("KfmFrames"):
+		# try load via preload fallback
+		var script_path = "res://core/kfm_frames.gd"
+		if not FileAccess.file_exists(script_path):
+			return
+	var frames = null
+	if ClassDB.class_exists("KfmFrames"):
+		# already loaded
+		pass
+	# Use KfmFrames directly if available
+	if Engine.has_singleton("KfmFrames"):
+		return
+	# Load via script
+	var kf = load("res://core/kfm_frames.gd")
+	if kf == null:
+		return
+	frames = kf.get_frames()
+	if frames == null or not frames.has_animation("idle"):
+		return
+	# Success - enable sprite, hide rectangles as overlay but keep for hurtbox debug
+	sprite.sprite_frames = frames
+	sprite.offset = Vector2(-55, -139) # axis
+	sprite.scale = Vector2(0.85 * facing, 0.85)
+	sprite.modulate = Color(0.75, 0.85, 1.0) if player_id == 1 else Color(1.0, 0.82, 0.80)
+	sprite.play("idle")
+	sprite.visible = true
+	# Keep Body as faint shadow/fallback but dim it so sprite pops
+	body_sprite.color.a = 0.0
+	_use_sprite = true
+
+func _update_sprite_anim():
+	if not _use_sprite or sprite == null or sprite.sprite_frames == null:
+		return
+	var anim := "idle"
+	if is_dead:
+		anim = "knockdown"
+	elif is_blocking:
+		anim = "guard"
+	elif is_attacking:
+		# map to nearest KFM anim
+		if attack_cooldown > 0.35:
+			anim = "stand_hp"
+		elif attack_cooldown > 0.25:
+			anim = "stand_mp"
+		else:
+			anim = "stand_lp"
+	elif not is_on_floor():
+		anim = "jump"
+	elif abs(velocity.x) > 20:
+		# walk direction relative
+		var moving_fwd = (velocity.x * facing) > 0
+		anim = "walk_fwd" if moving_fwd else "walk_back"
+	if sprite.animation != anim and sprite.sprite_frames.has_animation(anim):
+		sprite.play(anim)
