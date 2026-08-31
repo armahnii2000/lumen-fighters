@@ -1,0 +1,77 @@
+[gd_scene load_steps=4 format=3 uid="uid://c8lumen001"]
+
+[ext_resource type="Script" path="res://scripts/fighter.gd" id="1_lumen"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(28, 52)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blade"]
+size = Vector2(40, 6)
+
+[node name="Fighter" type="CharacterBody2D"]
+script = ExtResource("1_lumen")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Body" type="ColorRect" parent="."]
+offset_left = -14.0
+offset_top = -38.0
+offset_right = 14.0
+offset_bottom = 14.0
+color = Color(0.2, 0.6, 1, 1)
+
+[node name="Shadow" type="ColorRect" parent="."]
+offset_left = -18.0
+offset_top = 14.0
+offset_right = 18.0
+offset_bottom = 18.0
+color = Color(0, 0, 0, 0.35)
+
+[node name="Blade" type="Line2D" parent="."]
+position = Vector2(12, -10)
+points = PackedVector2Array(0, 0, 40, 0)
+width = 8.0
+default_color = Color(0.4, 0.9, 1, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="PointLight2D" type="PointLight2D" parent="Blade"]
+position = Vector2(20, 0)
+color = Color(0.4, 0.9, 1, 1)
+energy = 1.8
+texture_scale = 0.3
+shadow_enabled = false
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+monitorable = true
+monitoring = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="BladeArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+monitorable = true
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BladeArea"]
+position = Vector2(20, 0)
+shape = SubResource("RectangleShape2D_blade")
+
+[node name="Hitbox" type="Area2D" parent="."]
+visible = false
+collision_layer = 0
+collision_mask = 0
+
+[node name="Label" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -58.0
+offset_right = 20.0
+offset_bottom = -42.0
+horizontal_alignment = 1
+text = "P1"

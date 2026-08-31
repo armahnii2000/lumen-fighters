@@ -1,0 +1,12 @@
+# Godot
+.godot/
+export_presets.cfg
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Models / large AI artifacts (keep repo light)
+/models/
+*.blend1
