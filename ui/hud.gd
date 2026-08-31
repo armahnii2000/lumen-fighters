@@ -8,6 +8,8 @@ const BAR_W := 170.0
 
 @onready var p1_fill: ColorRect = $P1Fill
 @onready var p2_fill: ColorRect = $P2Fill
+@onready var p1_lumen: ColorRect = $P1Lumen
+@onready var p2_lumen: ColorRect = $P2Lumen
 @onready var timer_label: Label = $Timer
 @onready var msg_label: Label = $Message
 @onready var p1_pips: Label = $P1Pips
@@ -37,7 +39,15 @@ func setup(a: Fighter, b: Fighter) -> void:
 func _process(_delta: float) -> void:
 	if p1 != null:
 		p1_fill.size.x = BAR_W * clampf(float(p1.health) / float(p1.max_health), 0.0, 1.0)
+		if p1_lumen != null:
+			p1_lumen.size.x = BAR_W * clampf(p1.lumen / float(p1.max_lumen), 0.0, 1.0)
+			p1_lumen.color = Color(0.45, 0.95, 1.0, 1) if p1.lumen > 10 else Color(0.5, 0.3, 0.3, 1)
 	if p2 != null:
 		var w := BAR_W * clampf(float(p2.health) / float(p2.max_health), 0.0, 1.0)
 		p2_fill.size.x = w
 		p2_fill.position.x = 204.0 + (BAR_W - w)   # la barra de P2 drena hacia el centro
+		if p2_lumen != null:
+			var lw := BAR_W * clampf(p2.lumen / float(p2.max_lumen), 0.0, 1.0)
+			p2_lumen.size.x = lw
+			p2_lumen.position.x = 204.0 + (BAR_W - lw)
+			p2_lumen.color = Color(1.0, 0.55, 0.6, 1) if p2.lumen > 10 else Color(0.5, 0.3, 0.3, 1)

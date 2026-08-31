@@ -42,6 +42,8 @@ extends CharacterBody2D
 @onready var head: Polygon2D = $Visual/Head
 @onready var limb: Polygon2D = $Visual/Limb
 @onready var sprite: AnimatedSprite2D = $Sprite
+@onready var blade: Line2D = $Visual/Blade
+@onready var blade_light: PointLight2D = $Visual/Blade/PointLight2D
 
 var _cur_anim: String = ""
 
@@ -56,6 +58,8 @@ var opponent: Fighter = null
 var on_ground: bool = true
 
 var health: int = 1000
+var max_lumen: int = 100
+var lumen: float = 50.0
 var moves: Dictionary = {}
 var current_move: MoveData = null
 var move_has_hit: bool = false
@@ -67,6 +71,7 @@ var throw_pressed: bool = false
 var invuln_frames: int = 0
 var combo_count: int = 0
 var frozen: bool = false
+# Lumen: light weapon resource
 
 var specials: Dictionary = {}
 var _numpad_history: Array = []
@@ -92,6 +97,7 @@ func _ready() -> void:
 	_apply_base_colors()
 	_setup_sprite()
 	health = max_health
+	lumen = 50.0
 	moves = MoveSet.default_normals()
 	specials = Characters.specials_for(character_id)
 	var s := Characters.stats(character_id)
@@ -272,6 +278,10 @@ func _physics_process(delta: float) -> void:
 		input = input_source.poll()
 	if invuln_frames > 0:
 		invuln_frames -= 1
+	# Lumen regen: +3 por sec idle/no atacando
+	if state_machine.current_state != null and state_machine.current_state.name in ["Idle", "Walk", "Crouch"] and hitstun_frames == 0 and blockstun_frames == 0:
+		lumen = min(float(max_lumen), lumen + delta * 6.0)
+	_update_blade(delta)
 	_dash_signal = _dash.update(input.horizontal())
 	_update_button_edges()
 	_update_throw_press()
@@ -361,7 +371,7 @@ func launch_jump(h_dir: int) -> void:
 func apply_gravity(delta: float) -> void:
 	vel.y += gravity * delta
 
-# --- Ataques ---
+# --- Ataques + Lumen ---
 
 ## Intenta iniciar un normal según la postura ("st"/"cr"/"j"). Devuelve true si arrancó.
 func try_start_attack(stance: String) -> bool:
@@ -369,11 +379,19 @@ func try_start_attack(stance: String) -> bool:
 		if btn in just_pressed:
 			var key: String = stance + "." + btn
 			if moves.has(key):
-				start_move(moves[key])
+				var m: MoveData = moves[key]
+				if m.lumen_cost > 0 and lumen < m.lumen_cost:
+					continue # sin Lumen suficiente -> no sale
+				start_move(m)
 				return true
 	return false
 
 func start_move(m: MoveData) -> void:
+	# coste de Lumen
+	if m.lumen_cost > 0:
+		if lumen < m.lumen_cost:
+			return
+		lumen -= m.lumen_cost
 	current_move = m
 	move_has_hit = false
 	_projectile_spawned = false
@@ -386,14 +404,23 @@ func try_start_special() -> bool:
 	var punch := _pressed_strength(PUNCHES)
 	var kick := _pressed_strength(KICKS)
 	if punch != "" and MotionParser.matches(_numpad_history, [6, 2, 3], MOTION_WINDOW):
-		start_move(specials["dp." + punch])
-		return true
+		var m: MoveData = specials["dp." + punch]
+		if lumen >= m.lumen_cost:
+			start_move(m)
+			return true
+		return false
 	if punch != "" and MotionParser.matches(_numpad_history, [2, 3, 6], MOTION_WINDOW):
-		start_move(specials["hadouken." + punch])
-		return true
+		var m2: MoveData = specials["hadouken." + punch]
+		if lumen >= m2.lumen_cost:
+			start_move(m2)
+			return true
+		return false
 	if kick != "" and MotionParser.matches(_numpad_history, [2, 1, 4], MOTION_WINDOW):
-		start_move(specials["tatsu." + kick])
-		return true
+		var m3: MoveData = specials["tatsu." + kick]
+		if lumen >= m3.lumen_cost:
+			start_move(m3)
+			return true
+		return false
 	return false
 
 ## Devuelve "l"/"m"/"h" del botón más fuerte recién pulsado de la lista, o "" si ninguno.
@@ -460,6 +487,8 @@ func receive_hit(m: MoveData, attacker_facing: int) -> void:
 		combo_count = 1
 	var dmg := DamageCalculator.scaled_damage(m.damage, combo_count - 1)
 	health = max(health - dmg, 0)
+	# si te golpean pierdes un poco de Lumen
+	lumen = max(0, lumen - 4)
 	vel = Vector2(attacker_facing * m.pushback, 0.0)
 	if m.causes_knockdown:
 		knockdown_frames = KNOCKDOWN_FRAMES
@@ -500,6 +529,7 @@ func reset_for_round(pos: Vector2, faces_right: bool) -> void:
 	position = pos
 	vel = Vector2.ZERO
 	health = max_health
+	lumen = 50.0
 	facing_right = faces_right
 	hitstun_frames = 0
 	blockstun_frames = 0
@@ -512,3 +542,33 @@ func reset_for_round(pos: Vector2, faces_right: bool) -> void:
 	on_ground = true
 	_numpad_history.clear()
 	state_machine.force_state("Idle")
+
+func _update_blade(_delta: float) -> void:
+	if blade == null or blade_light == null:
+		return
+	var ignited := lumen > 10
+	var st := state_machine.current_state.name if state_machine.current_state != null else "Idle"
+	var attacking := st == "Attack" and current_move != null
+	var target_len := 42.0 if ignited else 18.0
+	if attacking and current_move.is_special:
+		target_len = 48.0
+	elif attacking:
+		target_len = 38.0
+	var cur_len := blade.points[1].x if blade.points.size() > 1 else target_len
+	var new_len := lerp(cur_len, target_len, 0.22)
+	blade.points = PackedVector2Array([Vector2(0,0), Vector2(new_len, 0)])
+	blade.width = 4.5 if ignited else 2.5
+	blade_light.energy = 1.6 if ignited else 0.35
+	blade_light.visible = true
+	# color segun personaje + estado
+	var base := Color(0.5, 0.9, 1.0, 1) if character_id == "kaze" else Color(1.0, 0.45, 0.6, 1)
+	if attacking and current_move != null and current_move.is_special:
+		base = Color(1.0, 0.95, 0.6, 1)
+	blade.default_color = base
+	blade_light.color = base
+	blade.position = Vector2(11 * facing(), -70)
+	if not ignited:
+		blade.default_color.a = 0.65 + 0.35 * sin(Time.get_ticks_msec() * 0.012)
+
+func add_lumen(amount: int) -> void:
+	lumen = clamp(lumen + amount, 0, max_lumen)

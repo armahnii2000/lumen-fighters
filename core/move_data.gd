@@ -29,6 +29,9 @@ extends Resource
 @export var projectile_speed: float = 0.0
 @export var invuln_startup: int = 0       # frames de invencibilidad desde el inicio (DP)
 @export var self_move: Vector2 = Vector2.ZERO  # velocidad propia durante el especial (x = adelante)
+@export_group("Lumen")
+@export var lumen_cost: int = 0          # coste de Lumen para usarlo (especiales)
+@export var lumen_gain: int = 0          # Lumen que genera al conectar/golpear
 
 func total() -> int:
 	return startup + active + recovery

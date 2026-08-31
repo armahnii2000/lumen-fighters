@@ -17,8 +17,15 @@ static func resolve(attacker: Fighter, defender: Fighter) -> bool:
 	var m: MoveData = attacker.current_move
 	if defender.is_blocking(m):
 		defender.receive_block(m, attacker.facing())
+		# bloqueado genera poco Lumen
+		if m.lumen_gain > 0:
+			attacker.add_lumen(int(m.lumen_gain * 0.5))
 	else:
 		defender.receive_hit(m, attacker.facing())
+		if m.lumen_gain > 0:
+			attacker.add_lumen(m.lumen_gain)
+		elif m.lumen_gain == 0 and not m.is_special:
+			attacker.add_lumen(3)
 	attacker.set_hitstop(m.hitstop)
 	defender.set_hitstop(m.hitstop)
 	return true

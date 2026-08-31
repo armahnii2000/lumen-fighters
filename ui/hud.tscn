@@ -33,19 +33,47 @@ offset_right = 374.0
 offset_bottom = 20.0
 color = Color(0.95, 0.4, 0.32, 1)
 
-[node name="P1Name" type="Label" parent="."]
+[node name="P1LumenBg" type="ColorRect" parent="."]
 offset_left = 12.0
 offset_top = 22.0
+offset_right = 182.0
+offset_bottom = 26.0
+color = Color(0.08, 0.08, 0.12, 1)
+
+[node name="P1Lumen" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = 22.0
+offset_right = 182.0
+offset_bottom = 26.0
+color = Color(0.45, 0.95, 1, 1)
+
+[node name="P2LumenBg" type="ColorRect" parent="."]
+offset_left = 204.0
+offset_top = 22.0
+offset_right = 374.0
+offset_bottom = 26.0
+color = Color(0.08, 0.08, 0.12, 1)
+
+[node name="P2Lumen" type="ColorRect" parent="."]
+offset_left = 204.0
+offset_top = 22.0
+offset_right = 374.0
+offset_bottom = 26.0
+color = Color(1, 0.55, 0.6, 1)
+
+[node name="P1Name" type="Label" parent="."]
+offset_left = 12.0
+offset_top = 28.0
 offset_right = 120.0
-offset_bottom = 34.0
+offset_bottom = 40.0
 theme_override_font_sizes/font_size = 10
 text = "KAZE"
 
 [node name="P2Name" type="Label" parent="."]
 offset_left = 266.0
-offset_top = 22.0
+offset_top = 28.0
 offset_right = 374.0
-offset_bottom = 34.0
+offset_bottom = 40.0
 theme_override_font_sizes/font_size = 10
 horizontal_alignment = 2
 text = "HOMURA"
