@@ -1,26 +1,55 @@
-# LUMEN FIGHTERS
-Street Fighter-style 1v1 with light-based weapons. Hybrid AI-driven demo.
+# Lumen Fighters
 
-**Engine:** Godot 4.7 | **Location:** `~/Projects/lumen-fighters` (NOT synced to OneDrive/Google Drive)
+A 1v1 2D fighting game prototype built in Godot 4 where weapons are made of solid light. Attacks and defenses are directly tied to an in-engine **Lumen Energy** meter, making resource management central to every round.
 
-## Quick Start
-1. Open Godot 4.7 -> Import -> select `project.godot` in this folder
-2. Press Play (Main.tscn)
+## Core Mechanics
+
+- **Lumen Resource System:** Every fighter has a 0–100 Lumen meter alongside standard health. Attacks consume or generate Lumen.
+  - **Quick Jab:** Generates +5 Lumen on hit. Keeps offensive pressure alive when low on energy.
+  - **Heavy Slash:** Consumes 10 Lumen to deal heavy damage (15 HP).
+  - **Photon Burst (Special):** Consumes 25 Lumen to fire a projectile burst with knockback.
+  - **Block:** Reduces incoming damage by 70% while active, consuming 5 Lumen per blocked attack.
+- **Dynamic Weapon States:**
+  - `Ignited` (>10 Lumen): Solid-light blade extends, hits harder, and casts dynamic point light.
+  - `Dimmed` (<10 Lumen): Blade flickers and retracts. Attacks deal minimal damage until meter is rebuilt via jabs or passive recovery (+2/sec).
+- **Two-Player Local Play:** Playable head-to-head on a single keyboard or with standard gamepads.
 
 ## Controls
-- **P1:** A/D Move | W Jump | S Block | J Jab (+5 Lumen) | K Slash (-10 Lumen) | L Burst (-25)
-- **P2:** Arrows Move/Jump/Block | Numpad 1 Jab | 2 Slash | 3 Burst
-- **R** Restart
 
-## GDD
-See `GDD.md`
+### Keyboard
 
-## Hybrid AI Pipeline
-- Code: Ollama qwen2.5-coder:7b (local)
-- 2D: Leonardo/Bing -> Krita
-- 3D: Meshy/Hunyuan3D on HuggingFace -> Blender
-- Audio: Suno
-- Assembly: Godot
+| Action | Player 1 | Player 2 |
+| :--- | :--- | :--- |
+| **Move Left / Right** | `A` / `D` | `←` / `→` |
+| **Jump** | `W` | `↑` |
+| **Block** | `S` | `↓` |
+| **Quick Jab** (+5 Lumen) | `J` | `Numpad 1` |
+| **Heavy Slash** (-10 Lumen) | `K` | `Numpad 2` |
+| **Photon Burst** (-25 Lumen) | `L` | `Numpad 3` |
+| **Restart Match** | `R` | `R` |
 
-## Git
-Repo will be `github.com/armahnii2000/lumen-fighters`
+### Controller (Xbox / PlayStation)
+
+- **Move / Jump / Crouch:** D-Pad or Left Stick
+- **Jab:** `X` (Xbox) / `Square` (PS)
+- **Slash:** `Y` (Xbox) / `Triangle` (PS)
+- **Special:** `B` (Xbox) / `Circle` (PS)
+- **Block:** Left Trigger (`LT` / `L2`) or Left Bumper (`LB` / `L1`)
+
+## Getting Started
+
+1. Download or clone this repository:
+   ```bash
+   git clone https://github.com/armahnii2000/lumen-fighters.git
+   ```
+2. Launch **Godot 4.3+** (or Godot 4.x).
+3. Click **Import**, navigate to the project directory, and select `project.godot`.
+4. Run the project (press `F5` or click **Play** in the top right to start `Main.tscn`).
+
+## Design Document
+
+A full breakdown of the mechanics, frame data considerations, and planned features is available in [GDD.md](GDD.md).
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
